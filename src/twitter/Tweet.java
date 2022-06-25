@@ -4,7 +4,6 @@
 package twitter;
 
 import java.time.Instant;
-
 /**
  * This immutable datatype represents a tweet from Twitter.
  * 

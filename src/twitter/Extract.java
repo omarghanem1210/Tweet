@@ -3,8 +3,11 @@
  */
 package twitter;
 
-import java.util.List;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * Extract consists of methods that extract information from a list of tweets.
@@ -24,7 +27,20 @@ public class Extract {
      *         every tweet in the list.
      */
     public static Timespan getTimespan(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        if (tweets.size()==0){
+            throw new IllegalArgumentException("Expected a non empty list");
+        }
+        Instant start = tweets.get(0).getTimestamp();
+        Instant end = tweets.get(0).getTimestamp();
+        for (int i = 1; i < tweets.size(); i++){
+            if (start.isAfter(tweets.get(i).getTimestamp())){
+                start = tweets.get(i).getTimestamp();
+            }
+            else if (end.isBefore(tweets.get(i).getTimestamp())){
+                end = tweets.get(i).getTimestamp();
+            }
+        }
+        return new Timespan(start, end);
     }
 
     /**
@@ -43,7 +59,18 @@ public class Extract {
      *         include a username at most once.
      */
     public static Set<String> getMentionedUsers(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Pattern pattern = Pattern.compile("(?<![a-z[0-9][._-]])@[^ ][a-z[0-9][._-]]*", Pattern.CASE_INSENSITIVE);
+        Matcher matcher;
+        Set <String> mentionedUsers = new HashSet<>();
+        for (int i = 0; i < tweets.size(); i++){
+            matcher = pattern.matcher(tweets.get(i).getText());
+            while (matcher.find()){
+                int start = matcher.start();
+                int end = matcher.end();
+                mentionedUsers.add(tweets.get(i).getText().substring(start, end).toLowerCase());
+            }
+        }
+        return mentionedUsers;
     }
 
 }
