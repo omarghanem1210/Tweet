@@ -3,7 +3,11 @@
  */
 package twitter;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Filter consists of methods that filter a list of tweets for those matching a
@@ -27,7 +31,13 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> writtenBy(List<Tweet> tweets, String username) {
-        throw new RuntimeException("not implemented");
+        ArrayList<Tweet> required_tweets = new ArrayList<>();
+        for (int i = 0; i < tweets.size(); i++){
+            if (tweets.get(i).getAuthor().equals(username)){
+                required_tweets.add(tweets.get(i));
+            }
+        }
+        return required_tweets;
     }
 
     /**
@@ -41,7 +51,16 @@ public class Filter {
      *         in the same order as in the input list.
      */
     public static List<Tweet> inTimespan(List<Tweet> tweets, Timespan timespan) {
-        throw new RuntimeException("not implemented");
+        ArrayList<Tweet> required_tweets = new ArrayList<>();
+        for (int i =  0; i < tweets.size(); i++){
+            Instant instant = tweets.get(i).getTimestamp();
+            Instant start = timespan.getStart();
+            Instant end = timespan.getEnd();
+            if ((instant.isAfter(start) && instant.isBefore(end)) || instant.equals(end) || instant.equals(start)){
+                required_tweets.add(tweets.get(i));
+            }
+        }
+        return required_tweets;
     }
 
     /**
@@ -60,7 +79,20 @@ public class Filter {
      *         same order as in the input list.
      */
     public static List<Tweet> containing(List<Tweet> tweets, List<String> words) {
-        throw new RuntimeException("not implemented");
+        ArrayList<Tweet> required_tweets = new ArrayList<>();
+        Pattern pattern;
+        Matcher matcher;
+        for (int i = 0; i < tweets.size(); i++){
+            for (int j = 0; j < words.size(); j++){
+                pattern = Pattern.compile(words.get(j), Pattern.CASE_INSENSITIVE);
+                matcher = pattern.matcher(tweets.get(i).getText());
+                if (matcher.find()){
+                    required_tweets.add(tweets.get(i));
+                    break;
+                }
+            }
+        }
+        return required_tweets;
     }
 
 }
