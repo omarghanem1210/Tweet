@@ -67,7 +67,7 @@ public class Extract {
             while (matcher.find()){
                 int start = matcher.start();
                 int end = matcher.end();
-                mentionedUsers.add(tweets.get(i).getText().substring(start, end).toLowerCase());
+                mentionedUsers.add(tweets.get(i).getText().substring(start+1, end).toLowerCase());
             }
         }
         return mentionedUsers;

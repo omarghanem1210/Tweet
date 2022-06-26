@@ -3,9 +3,7 @@
  */
 package twitter;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * SocialNetwork provides methods that operate on a social network.
@@ -27,34 +25,88 @@ public class SocialNetwork {
 
     /**
      * Guess who might follow whom, from evidence found in tweets.
-     * 
-     * @param tweets
-     *            a list of tweets providing the evidence, not modified by this
-     *            method.
+     *
+     * @param tweets a list of tweets providing the evidence, not modified by this
+     *               method.
      * @return a social network (as defined above) in which Ernie follows Bert
-     *         if and only if there is evidence for it in the given list of
-     *         tweets.
-     *         One kind of evidence that Ernie follows Bert is if Ernie
-     *         @-mentions Bert in a tweet. This must be implemented. Other kinds
-     *         of evidence may be used at the implementor's discretion.
-     *         All the Twitter usernames in the returned social network must be
-     *         either authors or @-mentions in the list of tweets.
+     * if and only if there is evidence for it in the given list of
+     * tweets.
+     * One kind of evidence that Ernie follows Bert is if Ernie
+     * @-mentions Bert in a tweet. This must be implemented. Other kinds
+     * of evidence may be used at the implementor's discretion.
+     * All the Twitter usernames in the returned social network must be
+     * either authors or @-mentions in the list of tweets.
      */
     public static Map<String, Set<String>> guessFollowsGraph(List<Tweet> tweets) {
-        throw new RuntimeException("not implemented");
+        Map<String, Set<String>> socialNetwork = new HashMap<>();
+        Set<String> users = Extract.getMentionedUsers(tweets);
+        Iterator<String> iterator = users.iterator();
+        for (int i = 0; i < users.size(); i++) {
+            socialNetwork.put(iterator.next().toLowerCase(), new HashSet<String>());
+        }
+        for (int i = 0; i < tweets.size(); i++) {
+            String key = tweets.get(i).getAuthor().toLowerCase();
+            Set<String> mentioned = Extract.getMentionedUsers(Arrays.asList(tweets.get(i)));
+            socialNetwork.put(key, mentioned);
+        }
+        return socialNetwork;
     }
 
     /**
      * Find the people in a social network who have the greatest influence, in
      * the sense that they have the most followers.
-     * 
-     * @param followsGraph
-     *            a social network (as defined above)
+     *
+     * @param followsGraph a social network (as defined above)
      * @return a list of all distinct Twitter usernames in followsGraph, in
-     *         descending order of follower count.
+     * descending order of follower count.
      */
     public static List<String> influencers(Map<String, Set<String>> followsGraph) {
-        throw new RuntimeException("not implemented");
-    }
+        Map<String, Integer> map = new HashMap<>();
+        Set<String> keys = followsGraph.keySet();
+        ArrayList<String> users = new ArrayList<>(keys.size());
+        Iterator<String> iterator = keys.iterator();
 
+        for (int i = 0; i < keys.size(); i++){
+            map.put(iterator.next(), 0);
+        }
+
+        int time = 0;
+        while (time < keys.size()){
+            String temporary = null;
+            iterator = keys.iterator();
+            for (int i = 0; i < keys.size(); i++){
+                String s = iterator.next();
+                if (followsGraph.get(s).isEmpty()){
+                    continue;
+                }
+                Set<String> mentioned = followsGraph.get(s);
+                Iterator<String> iterator1 = mentioned.iterator();
+                for (int j = 0; j < mentioned.size(); j++){
+                    String s1 = iterator1.next();
+                    if (users.contains(s1)){
+                        continue;
+                    }
+                    map.put(s1, map.get(s1) + 1);
+                    if (temporary == null || map.get(s1) >= map.get(temporary)){
+                        temporary = s1;
+                    }
+                }
+                }
+            time++;
+            if (temporary == null)
+                continue;
+            else{
+                users.add(temporary);
+            }
+        }
+
+        iterator = keys.iterator();
+        for (int i = 0; i < keys.size(); i++){
+            String s = iterator.next();
+            if (!users.contains(s))
+                users.add(s);
+        }
+
+        return users;
+    }
 }
